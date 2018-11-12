@@ -12,6 +12,8 @@ public class Tilemap : MonoBehaviour {
 
     [SerializeField]
     GameObject tilePrefab;
+    [SerializeField]
+    Sprite arrowSprite;
 
 	void Start () {
         Instance = this;
@@ -32,7 +34,7 @@ public class Tilemap : MonoBehaviour {
             return adjacent;
         }
 
-        //Left tile
+        //Left tile x--
         if(tile.X - 1 >= 0 && tile.X - 1 < Width)
         {
             if(Tiles[tile.X - 1,tile.Y].Type == Tile.TileType.Walkable || Tiles[tile.X - 1, tile.Y].Type == Tile.TileType.End)
@@ -40,7 +42,7 @@ public class Tilemap : MonoBehaviour {
                 adjacent.Add(new TileInfo() {Tile = Tiles[tile.X - 1, tile.Y] , Diagonal = false });
             }
         }
-        //Right tile
+        //Right tile x++
         if (tile.X + 1 >= 0 && tile.X + 1 < Width)
         {
             if (Tiles[tile.X + 1, tile.Y].Type == Tile.TileType.Walkable || Tiles[tile.X + 1, tile.Y].Type == Tile.TileType.End)
@@ -48,7 +50,7 @@ public class Tilemap : MonoBehaviour {
                 adjacent.Add(new TileInfo() { Tile = Tiles[tile.X + 1, tile.Y], Diagonal = false });
             }
         }
-        //Up tile
+        //Up tile y--
         if (tile.Y - 1 >= 0 && tile.Y - 1 < Height)
         {
             if (Tiles[tile.X, tile.Y - 1].Type == Tile.TileType.Walkable || Tiles[tile.X, tile.Y - 1].Type == Tile.TileType.End)
@@ -56,7 +58,7 @@ public class Tilemap : MonoBehaviour {
                 adjacent.Add(new TileInfo() { Tile = Tiles[tile.X, tile.Y - 1], Diagonal = false });
             }
         }
-        //Down tile
+        //Down tile y++
         if (tile.Y + 1 >= 0 && tile.Y + 1 < Height)
         {
             if (Tiles[tile.X, tile.Y + 1].Type == Tile.TileType.Walkable || Tiles[tile.X, tile.Y + 1].Type == Tile.TileType.End)
@@ -202,7 +204,8 @@ public class Tilemap : MonoBehaviour {
                     Y = y,
                     Type = Tile.CalculateBorder(x, y),
                     GotoTile = null,
-                    Id = i
+                    Id = i,
+                    ArrowSprite = arrowSprite,                   
                 };
                 go.name = x + "," + y;
                 go.transform.position = new Vector3(x * 1 - xOffset, -y * 1 + yOffset, 0);

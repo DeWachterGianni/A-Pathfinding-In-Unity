@@ -51,12 +51,10 @@ public class Pathfinding : MonoBehaviour {
         //Calculate all H scores
         foreach (Tile tile in Tilemap.Instance.Tiles)
         {
-            //checks++; should I let it count here as well???
             if(tile.Type == Tile.TileType.Walkable || tile.Type == Tile.TileType.Start)
             {
                 tile.HScore = Mathf.Abs(Tilemap.Instance.EndTile.X - tile.X) + Mathf.Abs(Tilemap.Instance.EndTile.Y - tile.Y);
             }
-            Log.Instance.SetCheckAmount(checks);
         }
 
         //Add start tile to open list
@@ -89,7 +87,7 @@ public class Pathfinding : MonoBehaviour {
                 {                 
                     Debug.Log("found end");
                     found = true;
-                    neighbourTile.GotoTile = center;
+                    neighbourTile.ChangeGoToTile(center);
                     break;
                 }
 
@@ -97,18 +95,18 @@ public class Pathfinding : MonoBehaviour {
                 if (!openList.Contains(neighbourTile.Id) && !closedList.Contains(neighbourTile.Id))
                 {
                     openList.Add(neighbourTile.Id);
-                    neighbourTile.GotoTile = center;
+                    neighbourTile.ChangeGoToTile(center);
                 }
               
                 //Update tile scores
                 neighbourTile.GScore = center.GScore + score;
-                neighbourTile.FScore = neighbourTile.GScore + neighbourTile.HScore;
-
+                neighbourTile.ChangeFScore(neighbourTile.GScore + neighbourTile.HScore);
+                
                 //If this tile path is better than the existing one
                 if (openList.Contains(neighbourTile.Id))
                     if (center.FScore + score < neighbourTile.FScore)
                     {
-                        neighbourTile.GotoTile = center;
+                        neighbourTile.ChangeGoToTile(center);
                     }
             }
 
@@ -117,14 +115,20 @@ public class Pathfinding : MonoBehaviour {
                 idToTile(id).ChangeColor(Color.cyan);
             }
 
-            if(center.Type == Tile.TileType.Start)
+            foreach (int id in closedList)
+            {
+                if(idToTile(id).Type != Tile.TileType.Start)
+                    idToTile(id).ChangeColor(Color.red);
+            }
+
+            if (center.Type == Tile.TileType.Start)
                 center.ChangeColor(Color.green);
             else
                 center.ChangeColor(Color.yellow);
 
             openList.Remove(center.Id);
             closedList.Add(center.Id);
-            
+            //yield return StartCoroutine(WaitForKeyDown(KeyCode.Space));
             yield return new WaitForSeconds(WaitTime);
         } while (!found);
 
@@ -137,8 +141,6 @@ public class Pathfinding : MonoBehaviour {
         }
         else
         {
-
-
             bool retracing = true;
             Tile start = null;
             do
@@ -165,6 +167,12 @@ public class Pathfinding : MonoBehaviour {
             Running = false;
             StopCoroutine(Loop());
         }
+    }
+
+    IEnumerator WaitForKeyDown(KeyCode keyCode)
+    {
+        while (!Input.GetKeyDown(keyCode))
+            yield return null;
     }
 
     Tile smallestFScoreInOpenList()

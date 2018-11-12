@@ -17,3 +17,5 @@ Zooming:
 
 Known bugs I can't fix :'(
 - View image(s) in project in the 'Bugs' folder
+  - Bug 1: path should prefer to go straight here
+   

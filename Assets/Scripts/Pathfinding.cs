@@ -51,7 +51,7 @@ public class Pathfinding : MonoBehaviour {
         //Calculate all H scores
         foreach (Tile tile in Tilemap.Instance.Tiles)
         {
-            checks++;
+            //checks++; should I let it count here as well???
             if(tile.Type == Tile.TileType.Walkable || tile.Type == Tile.TileType.Start)
             {
                 tile.HScore = Mathf.Abs(Tilemap.Instance.EndTile.X - tile.X) + Mathf.Abs(Tilemap.Instance.EndTile.Y - tile.Y);
@@ -65,7 +65,7 @@ public class Pathfinding : MonoBehaviour {
         do
         {
             Tile center = smallestFScoreInOpenList();
-                       
+
             if(center == null)
             {
                 Log.Instance.AddToQueue("No solution found :'(");
@@ -74,37 +74,42 @@ public class Pathfinding : MonoBehaviour {
 
             foreach (Tilemap.TileInfo tileInfo in Tilemap.Instance.GetAdjacentWalkableTiles(center, diagonal))
             {
-                Tile tile = tileInfo.Tile;
-                int score = (diagonal == true ? 10 : 14); //if tile is diagonal score is higher
+                Tile neighbourTile = tileInfo.Tile;
+                int score = (tileInfo.Diagonal == true ? 14 : 10); //if tile is diagonal score is higher
+
+                if (neighbourTile.Id == 121)
+                    Debug.Log("NOW 121");
 
                 //Amount of checks performed
                 checks++;
                 Log.Instance.SetCheckAmount(checks);
 
                 //If tile is the end tile
-                if(tile.Type == Tile.TileType.End)
+                if(neighbourTile.Type == Tile.TileType.End)
                 {                 
                     Debug.Log("found end");
                     found = true;
-                    tile.GotoTile = center;
+                    neighbourTile.GotoTile = center;
                     break;
                 }
 
                 //Add tile to open list if it isn't in any of the lists
-                if (!openList.Contains(tile.Id) && !closedList.Contains(tile.Id))
+                if (!openList.Contains(neighbourTile.Id) && !closedList.Contains(neighbourTile.Id))
                 {
-                    openList.Add(tile.Id);
-                    tile.GotoTile = center;
+                    openList.Add(neighbourTile.Id);
+                    neighbourTile.GotoTile = center;
                 }
-                
-                //If this tile path is better than the existing one
-                if (openList.Contains(tile.Id)) //Gscore               Well what the fuck have I made it do here hahaha
-                    if (center.FScore + score < tile.FScore)
-                        tile.GotoTile = center;
-
+              
                 //Update tile scores
-                tile.GScore = center.GScore + score;
-                tile.FScore = tile.GScore + tile.HScore;
+                neighbourTile.GScore = center.GScore + score;
+                neighbourTile.FScore = neighbourTile.GScore + neighbourTile.HScore;
+
+                //If this tile path is better than the existing one
+                if (openList.Contains(neighbourTile.Id))
+                    if (center.FScore + score < neighbourTile.FScore)
+                    {
+                        neighbourTile.GotoTile = center;
+                    }
             }
 
             foreach (int id in openList)

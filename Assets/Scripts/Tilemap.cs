@@ -73,7 +73,7 @@ public class Tilemap : MonoBehaviour {
             {
                 if (Tiles[tile.X - 1, tile.Y + 1].Type == Tile.TileType.Walkable || Tiles[tile.X - 1, tile.Y + 1].Type == Tile.TileType.End)
                 {
-                    adjacent.Add(new TileInfo() { Tile = Tiles[tile.X - 1, tile.Y + 1], Diagonal = false });
+                    adjacent.Add(new TileInfo() { Tile = Tiles[tile.X - 1, tile.Y + 1], Diagonal = true });
                 }
             }
             //Right down tile x++ y++
@@ -81,7 +81,7 @@ public class Tilemap : MonoBehaviour {
             {
                 if (Tiles[tile.X + 1, tile.Y + 1].Type == Tile.TileType.Walkable || Tiles[tile.X + 1, tile.Y + 1].Type == Tile.TileType.End)
                 {
-                    adjacent.Add(new TileInfo() { Tile = Tiles[tile.X + 1, tile.Y + 1], Diagonal = false });
+                    adjacent.Add(new TileInfo() { Tile = Tiles[tile.X + 1, tile.Y + 1], Diagonal = true });
                 }
             }
             //Left Up tile x-- y--
@@ -89,7 +89,7 @@ public class Tilemap : MonoBehaviour {
             {
                 if (Tiles[tile.X - 1, tile.Y - 1].Type == Tile.TileType.Walkable || Tiles[tile.X - 1, tile.Y - 1].Type == Tile.TileType.End)
                 {
-                    adjacent.Add(new TileInfo() { Tile = Tiles[tile.X - 1, tile.Y - 1], Diagonal = false });
+                    adjacent.Add(new TileInfo() { Tile = Tiles[tile.X - 1, tile.Y - 1], Diagonal = true });
                 }
             }
             //Right Up tile x++ y--
@@ -97,7 +97,7 @@ public class Tilemap : MonoBehaviour {
             {
                 if (Tiles[tile.X + 1, tile.Y - 1].Type == Tile.TileType.Walkable || Tiles[tile.X + 1, tile.Y - 1].Type == Tile.TileType.End)
                 {
-                    adjacent.Add(new TileInfo() { Tile = Tiles[tile.X + 1, tile.Y - 1], Diagonal = false });
+                    adjacent.Add(new TileInfo() { Tile = Tiles[tile.X + 1, tile.Y - 1], Diagonal = true });
                 }
             }
         }
@@ -294,13 +294,11 @@ public class Tilemap : MonoBehaviour {
 
     void rightClickedOnTile(Tile clickedTile)
     {
-
-        Debug.Log("Tile: " + clickedTile.GameObject.name + "\n" + 
+        Debug.Log("Tile " + clickedTile.Id + ": " + clickedTile.GameObject.name + "\n" + 
             "H Score: " + clickedTile.HScore + " | " +
             "G Score: " + clickedTile.GScore +" | " +
-            "F Score: " + clickedTile.FScore);
-
-
+            "F Score: " + clickedTile.FScore + " | " +
+            "Goto tile id: " + (clickedTile.GotoTile == null ? "NULL" : clickedTile.GotoTile.Id.ToString()));
     }
 
     public void UpdateTileScore(Tile tile)

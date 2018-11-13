@@ -108,8 +108,11 @@ public class Tilemap : MonoBehaviour {
     }
 
 	void Update () {
+        if (Pathfinding.Instance.Running)
+            return;
+
         //Fast edit
-        if(Input.GetKey(KeyCode.A) && Input.GetMouseButton(0))
+        if (Input.GetKey(KeyCode.A) && Input.GetMouseButton(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);

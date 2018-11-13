@@ -77,6 +77,12 @@ public class Control : MonoBehaviour {
             foreach (Tile tile in Tilemap.Instance.Tiles)
             {
                 tile.UpdateTileColor();
+                tile.GScore = 0;
+                tile.FScore = 0;
+                tile.HScore = 0;
+                tile.GotoTile = null;
+                tile.ChangeFScore(0);
+                tile.ChangeGoToTile(null);
             }
         }
         else

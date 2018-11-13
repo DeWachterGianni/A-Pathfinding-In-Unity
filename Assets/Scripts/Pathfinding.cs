@@ -8,6 +8,7 @@ public class Pathfinding : MonoBehaviour {
     public float WaitTime = 0f;
     public bool Found = false;
     public bool Running = false;
+    public bool Pause = false;
 
     List<int> openList, closedList;
 
@@ -26,18 +27,14 @@ public class Pathfinding : MonoBehaviour {
         if (Running)
             return;
 
+        Control.Instance.ClearGrid();
+
         Running = true;
         steps = 1;
         Found = false;
         diagonal = Control.Instance.DoDiagonal;
-
-        foreach (Tile tile in Tilemap.Instance.Tiles)
-        {
-            if(tile.Type == Tile.TileType.Walkable)
-            {
-                tile.UpdateTileColor();
-            }
-        }
+        openList.Clear();
+        closedList.Clear();
 
         StartCoroutine(Loop());
     }
@@ -64,7 +61,10 @@ public class Pathfinding : MonoBehaviour {
         {
             Tile center = smallestFScoreInOpenList();
 
-            if(center == null)
+            openList.Remove(center.Id);
+            closedList.Add(center.Id);
+
+            if (center == null)
             {
                 Log.Instance.AddToQueue("No solution found :'(");
                 break;
@@ -74,9 +74,6 @@ public class Pathfinding : MonoBehaviour {
             {
                 Tile neighbourTile = tileInfo.Tile;
                 int score = (tileInfo.Diagonal == true ? 14 : 10); //if tile is diagonal score is higher
-
-                if (neighbourTile.Id == 121)
-                    Debug.Log("NOW 121");
 
                 //Amount of checks performed
                 checks++;
@@ -91,17 +88,17 @@ public class Pathfinding : MonoBehaviour {
                     break;
                 }
 
+                //Update tile scores
+                neighbourTile.GScore = center.GScore + score;
+                neighbourTile.ChangeFScore(neighbourTile.GScore + neighbourTile.HScore);
+
                 //Add tile to open list if it isn't in any of the lists
                 if (!openList.Contains(neighbourTile.Id) && !closedList.Contains(neighbourTile.Id))
                 {
                     openList.Add(neighbourTile.Id);
                     neighbourTile.ChangeGoToTile(center);
-                }
-              
-                //Update tile scores
-                neighbourTile.GScore = center.GScore + score;
-                neighbourTile.ChangeFScore(neighbourTile.GScore + neighbourTile.HScore);
-                
+                }                            
+
                 //If this tile path is better than the existing one
                 if (openList.Contains(neighbourTile.Id))
                     if (center.FScore + score < neighbourTile.FScore)
@@ -118,7 +115,7 @@ public class Pathfinding : MonoBehaviour {
             foreach (int id in closedList)
             {
                 if(idToTile(id).Type != Tile.TileType.Start)
-                    idToTile(id).ChangeColor(Color.red);
+                    idToTile(id).ChangeColor(Color.yellow);
             }
 
             if (center.Type == Tile.TileType.Start)
@@ -126,11 +123,12 @@ public class Pathfinding : MonoBehaviour {
             else
                 center.ChangeColor(Color.yellow);
 
-            openList.Remove(center.Id);
-            closedList.Add(center.Id);
-            //yield return StartCoroutine(WaitForKeyDown(KeyCode.Space));
-            yield return new WaitForSeconds(WaitTime);
-        } while (!found);
+            if(Pause)
+                yield return StartCoroutine(WaitForKeyDown(KeyCode.KeypadEnter));
+            else
+                yield return new WaitForSeconds(WaitTime);
+
+        } while (!found && openList.Count > 0);
 
         if (!found)
         {

@@ -58,8 +58,10 @@ public class Tile {
     public void ChangeFScore(int FScore)
     {
         if (Type == TileType.Border || Type == TileType.Wall || FScore == 0)
+        {
             GameObject.GetComponentInChildren<TextMesh>().text = "";
-
+            return;
+        }
         this.FScore = FScore;
         GameObject.GetComponentInChildren<TextMesh>().text = this.FScore.ToString();
     }
@@ -69,7 +71,10 @@ public class Tile {
         this.GotoTile = GotoTile;
 
         if (GotoTile == null)
+        {
+            GameObject.transform.GetChild(1).GetComponent<SpriteRenderer>().sprite = null;
             return;
+        }
 
         GameObject.transform.GetChild(1).GetComponent<SpriteRenderer>().sprite = ArrowSprite;
 

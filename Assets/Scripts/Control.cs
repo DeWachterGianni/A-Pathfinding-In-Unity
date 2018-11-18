@@ -15,30 +15,13 @@ public class Control : MonoBehaviour {
     [SerializeField]
     Toggle tglDiagonal;
 
-    public bool CanSetStartTile, CanSetEndTile;
-
     void Start()
     {
         Instance = this;
 
-        CanSetStartTile = false;
-        CanSetEndTile = false;
-
         UpdateWaitTime();
     }
-
-    public void SetStartTile()
-    {
-        CanSetStartTile = true;
-        Log.Instance.AddToQueue("You can now select a start tile");
-    }
-
-    public void SetEndTile()
-    {
-        CanSetEndTile = true;
-        Log.Instance.AddToQueue("You can now select a end tile");
-    }
-
+  
     public void Begin()
     {
         if(Tilemap.Instance.StartTile == null)

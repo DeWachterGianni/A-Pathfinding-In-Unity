@@ -107,87 +107,6 @@ public class Tilemap : MonoBehaviour {
         return adjacent;
     }
 
-	void Update () {
-        if (Pathfinding.Instance.Running)
-            return;
-
-        //Fast edit
-        if (Input.GetKey(KeyCode.A) && Input.GetMouseButton(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
-            if (hit != false && hit.collider != null)
-            {
-                if (hit.collider.gameObject.tag == "Tile")
-                {
-                    int x = int.Parse(hit.collider.name.Substring(hit.collider.name.IndexOf(",") + 1));
-                    int y = int.Parse(hit.collider.name.Remove(hit.collider.name.IndexOf(",")));
-
-                    Tile tile = Tiles[y, x];
-                    changeClickedTile(tile, Tile.TileType.Wall);
-                }
-            }
-            return;
-        }
-        else if (Input.GetKey(KeyCode.Z) && Input.GetMouseButton(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
-            if (hit != false && hit.collider != null)
-            {
-                if (hit.collider.gameObject.tag == "Tile")
-                {
-                    int x = int.Parse(hit.collider.name.Substring(hit.collider.name.IndexOf(",") + 1));
-                    int y = int.Parse(hit.collider.name.Remove(hit.collider.name.IndexOf(",")));
-
-                    Tile tile = Tiles[y, x];
-                    changeClickedTile(tile, Tile.TileType.Walkable);
-                }
-            }
-            return;
-        }
-
-        //Clicking
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
-            if (hit != false && hit.collider != null)
-            {
-                if(hit.collider.gameObject.tag == "Tile")
-                {
-                    int x = int.Parse(hit.collider.name.Substring(hit.collider.name.IndexOf(",") + 1));
-                    int y = int.Parse(hit.collider.name.Remove(hit.collider.name.IndexOf(",")));
-
-                    // X and Y are here reversed because else it didn't work
-                    // Why you ask me?
-                    // Well I don't know...
-                    // Let me know
-                    leftClickedOnTile(Tiles[y,x]);                    
-                }
-            }
-        }
-        if (Input.GetMouseButtonDown(1))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(ray.origin, ray.direction);
-            if (hit != false && hit.collider != null)
-            {
-                if (hit.collider.gameObject.tag == "Tile")
-                {
-                    int x = int.Parse(hit.collider.name.Substring(hit.collider.name.IndexOf(",") + 1));
-                    int y = int.Parse(hit.collider.name.Remove(hit.collider.name.IndexOf(",")));
-
-                    // X and Y are here reversed because else it didn't work
-                    // Why you ask me?
-                    // Well I don't know...
-                    // Let me know
-                    rightClickedOnTile(Tiles[y, x]);
-                }
-            }
-        }
-    }
-
     void createTilegrid()
     {
         Tiles = new Tile[Width, Height];
@@ -218,102 +137,69 @@ public class Tilemap : MonoBehaviour {
         }
     }
 
-    void leftClickedOnTile(Tile clickedTile)
+    public void TryChangeTile(Tile Tile, Tile.TileType Type)
     {
         //May I change tile?
-        if (clickedTile.Type == Tile.TileType.Border)
+        if (Tile.Type == Tile.TileType.Border)
         {
             Log.Instance.AddToQueue("You can't edit the border tiles! :'(");
             return;
         }
 
-        //Handling tile setting
-        if (EndTile == clickedTile)
-            EndTile = null;
-
-        if (StartTile == clickedTile)
-            StartTile = null;
-
-        //Start and End tile control
-        if (Control.Instance.CanSetEndTile)
-        {
-            if(EndTile != null)
-            {
-                EndTile.ChangeType(Tile.TileType.Walkable);
-                EndTile = null;
-            }
-
-            EndTile = clickedTile;
-            clickedTile.ChangeType(Tile.TileType.End);
-            Control.Instance.CanSetEndTile = false;
-            Log.Instance.AddToQueue("End tile chosen!");
-            return;
-        }
-        else if (Control.Instance.CanSetStartTile)
+        //Is the changing type end or start
+        if(Type == Tile.TileType.Start)
         {
             if (StartTile != null)
-            {
                 StartTile.ChangeType(Tile.TileType.Walkable);
-                StartTile = null;
-            }
 
-            StartTile = clickedTile;
-            clickedTile.ChangeType(Tile.TileType.Start);
-            Control.Instance.CanSetStartTile = false;
-            Log.Instance.AddToQueue("Start tile chosen!");
+            StartTile = Tile;
+            StartTile.ChangeType(Tile.TileType.Start);
             return;
         }
-
-        //Wall / Normal
-        if (clickedTile.Type == Tile.TileType.Walkable)
-            clickedTile.ChangeType(Tile.TileType.Wall);
-        else
-            clickedTile.ChangeType(Tile.TileType.Walkable);
-    }
-
-    void changeClickedTile(Tile clickedTile, Tile.TileType type)
-    {
-        //May I change tile?
-        if (clickedTile.Type == Tile.TileType.Border)
+        else if(Type == Tile.TileType.End)
         {
-            Log.Instance.AddToQueue("You can't edit the border tiles! :'(");
+            if (EndTile != null)
+                EndTile.ChangeType(Tile.TileType.Walkable);
+
+            EndTile = Tile;
+            EndTile.ChangeType(Tile.TileType.End);
             return;
         }
 
-        //Handling tile setting
-        if (EndTile == clickedTile)
+        //Is the tile the end or start
+        if (Tile.Type == Tile.TileType.Start)
+            StartTile = null;
+        else if (Tile.Type == Tile.TileType.End)
             EndTile = null;
 
-        if (StartTile == clickedTile)
-            StartTile = null;
-
-        //Start and End tile control not allowed here
-        if (Control.Instance.CanSetEndTile || Control.Instance.CanSetStartTile)
-        {          
-            Control.Instance.CanSetEndTile = false;
-            Control.Instance.CanSetStartTile = false;
-        }
-
         //Change
-        clickedTile.ChangeType(type);
+        Tile.ChangeType(Type);
     }
 
-    void rightClickedOnTile(Tile clickedTile)
+    public void TileRightClick(Tile Tile)
     {
-        Debug.Log("Tile " + clickedTile.Id + ": " + clickedTile.GameObject.name + "\n" + 
-            "H Score: " + clickedTile.HScore + " | " +
-            "G Score: " + clickedTile.GScore +" | " +
-            "F Score: " + clickedTile.FScore + " | " +
-            "Goto tile id: " + (clickedTile.GotoTile == null ? "NULL" : clickedTile.GotoTile.Id.ToString()));
+        Debug.Log("Tile " + Tile.Id + ": " + Tile.GameObject.name + "\n" + 
+            "H Score: " + Tile.HScore + " | " +
+            "G Score: " + Tile.GScore +" | " +
+            "F Score: " + Tile.FScore + " | " +
+            "Goto tile id: " + (Tile.GotoTile == null ? "NULL" : Tile.GotoTile.Id.ToString()));
     }
 
-    public void UpdateTileScore(Tile tile)
+    public void TileLeftClick(Tile Tile)
     {
-        int x = int.Parse(tile.GameObject.name.Substring(tile.GameObject.name.IndexOf(",") + 1));
-        int y = int.Parse(tile.GameObject.name.Remove(tile.GameObject.name.IndexOf(",")));
-        Tiles[x, y].FScore = tile.FScore;
-        Tiles[x, y].GScore = tile.GScore;
-        Tiles[x, y].HScore = tile.HScore;
+        if(Tile.Type == Tile.TileType.Walkable)
+            TryChangeTile(Tile, Tile.TileType.Wall);
+        else
+            TryChangeTile(Tile, Tile.TileType.Walkable);
+    }
+
+    public void UpdateTileScore(Tile Tile)
+    {
+        int x = int.Parse(Tile.GameObject.name.Substring(Tile.GameObject.name.IndexOf(",") + 1));
+        int y = int.Parse(Tile.GameObject.name.Remove(Tile.GameObject.name.IndexOf(",")));
+        Tiles[x, y].FScore = Tile.FScore;
+        Tiles[x, y].GScore = Tile.GScore;
+        Tiles[x, y].HScore = Tile.HScore;
     }
 
     public class TileInfo

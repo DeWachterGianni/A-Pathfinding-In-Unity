@@ -19,7 +19,7 @@ Visuals:
 - Blue: openlist tiles
 - Yellow: closedlist tiles
 - Grey: wall
-- While: walkable
+- White: walkable
 - Black: border
 - Green: start
 - Red: end
@@ -31,13 +31,14 @@ Adding walls:
 - Click on a tile to add a wall
 - Press 'A' and 'Left mouse button' to drag mouse around while fast placing walls
 - Press 'Z' and 'Left mouse button' to drag mouse around while fast removing walls
+- Press 'S' and 'Left mouse button' to set the start tile
+- Press 'E' and 'Left mouse button' to set the end tile
 
 Moving around:
 - Press 'Middle mouse button' while moving mouse around
 
 Zooming:
 - Use scroll wheel
-
 
 Known bugs I can't fix :'(
 - View image(s) in project in the 'Bugs' folder
